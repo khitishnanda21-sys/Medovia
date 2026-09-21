@@ -1,5 +1,6 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { doctors } from '../data/doctors';
+import { doctors, getNextToken } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 function BookingConfirmationScreen() {
   const navigate = useNavigate();
@@ -14,7 +15,10 @@ function BookingConfirmationScreen() {
       style={{
         minHeight: '100vh',
         width: '100vw',
-        background: '#F5F3DF',
+        backgroundImage: `url(${dashboardBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -69,6 +73,9 @@ function BookingConfirmationScreen() {
             <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: '#5f5e5a' }}>{doctor.dept}</p>
             <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: '#5f5e5a' }}>{mode} consultation</p>
             <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: '#5f5e5a' }}>{doctor.timing}</p>
+            <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: '#5f5e5a' }}>
+              🎫 Your token: <strong>#{getNextToken(doctor)}</strong>
+            </p>
           </div>
         )}
 

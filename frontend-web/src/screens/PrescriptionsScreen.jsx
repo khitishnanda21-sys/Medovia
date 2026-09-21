@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doctors } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 const mockPrescriptions = [
   {
@@ -49,8 +50,7 @@ function PrescriptionsScreen() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
-      {/* Top bar */}
+    <div style={{ minHeight: '100vh', width: '100vw', backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div
         style={{
           display: 'flex',

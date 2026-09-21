@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PromptInputBox } from '../components/PromptInputBox';
+// Drop your background image into src/assets and update this import to match its filename
+import bgImage from '../assets/medovia-drmatrix-bg.png';
 
 function getMockReply(message) {
   const text = message.toLowerCase();
-
   if (text.includes('fever') || text.includes('cold') || text.includes('cough')) {
     return "Mild fever, cold, or cough can often be managed at home: rest, fluids, and paracetamol if needed. If it lasts more than 3 days, or you have breathing difficulty, please consult a doctor in General Medicine.";
   }
@@ -31,11 +33,10 @@ function DrMatrixScreen() {
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: "Hi, I'm Dr. Matrix 🤖 — tell me your symptoms and I'll help you figure out whether home care is enough or you should see a doctor.",
+      text: "Hi, I'm Dr. Matrix — tell me your symptoms and I'll help you figure out whether home care is enough or you should see a doctor.",
       time: formatTime(),
     },
   ]);
-  const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
   const bottomRef = useRef(null);
 
@@ -43,12 +44,11 @@ function DrMatrixScreen() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typing]);
 
-  const sendMessage = (text) => {
-    if (!text.trim()) return;
+  const sendMessage = (text, file) => {
+    if (!text.trim() && !file) return;
 
-    const userMsg = { sender: 'user', text, time: formatTime() };
+    const userMsg = { sender: 'user', text, time: formatTime(), image: file ? URL.createObjectURL(file) : null };
     setMessages((prev) => [...prev, userMsg]);
-    setInput('');
     setTyping(true);
 
     setTimeout(() => {
@@ -58,236 +58,96 @@ function DrMatrixScreen() {
     }, 1100);
   };
 
-  const handleSend = (e) => {
-    e.preventDefault();
-    sendMessage(input);
-  };
-
   return (
     <div
-      style={{
-        height: '100vh',
-        width: '100vw',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'linear-gradient(180deg, #F5F3DF 0%, #ECE8CE 100%)',
-      }}
+      className="relative h-screen w-screen flex flex-col overflow-hidden"
+      style={{ backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
+      <div className="absolute inset-0 bg-[#0a0d10]/75" />
+
       {/* Top bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '14px',
-          padding: '16px 20px',
-          background: 'linear-gradient(120deg, #0F3D3E 0%, #175B5C 100%)',
-          color: '#fff',
-          boxShadow: '0 4px 18px rgba(15,61,62,0.25)',
-          position: 'relative',
-          zIndex: 2,
-        }}
-      >
-        <button
-          onClick={() => navigate('/dashboard')}
-          style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', cursor: 'pointer' }}
-          aria-label="Back to dashboard"
-        >
+      <div className="relative z-10 flex items-center gap-3 px-5 py-4 border-b border-white/10">
+        <button onClick={() => navigate('/dashboard')} className="text-white text-lg cursor-pointer">
           ←
         </button>
-
-        <div
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'rgba(255,255,255,0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.3rem',
-            border: '2px solid rgba(255,255,255,0.3)',
-          }}
-        >
+        <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-lg">
           🤖
         </div>
-
-        <div style={{ flex: 1 }}>
-          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '1rem' }}>Dr. Matrix</p>
-          <p style={{ margin: 0, fontSize: '0.72rem', opacity: 0.85, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                background: '#4ADE80',
-                display: 'inline-block',
-              }}
-            />
+        <div>
+          <p className="text-white font-semibold text-sm">Dr. Matrix</p>
+          <p className="text-white/60 text-xs flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
             AI symptom assistant • Online
           </p>
         </div>
       </div>
 
       {/* Disclaimer */}
-      <div
-        style={{
-          background: '#fdf3e6',
-          color: '#a5690c',
-          fontSize: '0.75rem',
-          padding: '8px 20px',
-          textAlign: 'center',
-          borderBottom: '1px solid #f2e2c4',
-        }}
-      >
+      <div className="relative z-10 bg-orange-500/10 border-b border-orange-500/20 text-orange-200 text-xs px-5 py-2 text-center">
         ⚠ Not a substitute for professional medical advice. In an emergency, contact a doctor or hospital immediately.
       </div>
 
       {/* Messages */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '14px',
-        }}
-      >
+      <div className="relative z-10 flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-4">
         <AnimatePresence initial={false}>
           {messages.map((m, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 16, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.28, ease: 'easeOut' }}
-              style={{
-                display: 'flex',
-                gap: '10px',
-                alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
-                flexDirection: m.sender === 'user' ? 'row-reverse' : 'row',
-                maxWidth: '80%',
-              }}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`flex gap-2.5 max-w-[80%] ${m.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}
             >
               <div
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.95rem',
-                  background: m.sender === 'user' ? '#0F3D3E' : '#ffffff',
-                  color: m.sender === 'user' ? '#fff' : '#0F3D3E',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                }}
+                className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm ${
+                  m.sender === 'user' ? 'bg-white/15' : 'bg-white/10 border border-white/20'
+                }`}
               >
                 {m.sender === 'user' ? '🙂' : '🤖'}
               </div>
-
               <div>
                 <div
-                  style={{
-                    backgroundColor: m.sender === 'user' ? '#0F3D3E' : '#ffffff',
-                    color: m.sender === 'user' ? '#fff' : '#2c2c2a',
-                    padding: '12px 16px',
-                    borderRadius: '18px',
-                    borderBottomRightRadius: m.sender === 'user' ? '4px' : '18px',
-                    borderBottomLeftRadius: m.sender === 'bot' ? '4px' : '18px',
-                    boxShadow: '0 3px 12px rgba(0,0,0,0.07)',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.5,
-                  }}
+                  className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                    m.sender === 'user'
+                      ? 'bg-[#0F3D3E] text-white rounded-br-md'
+                      : 'bg-[#1F2023] text-gray-100 border border-white/10 rounded-bl-md'
+                  }`}
                 >
+                  {m.image && <img src={m.image} alt="attachment" className="rounded-lg mb-2 max-w-[180px]" />}
                   {m.text}
                 </div>
-                <p
-                  style={{
-                    margin: '4px 4px 0',
-                    fontSize: '0.68rem',
-                    color: '#a3a297',
-                    textAlign: m.sender === 'user' ? 'right' : 'left',
-                  }}
-                >
-                  {m.time}
-                </p>
+                <p className={`text-[10px] text-white/40 mt-1 ${m.sender === 'user' ? 'text-right' : 'text-left'}`}>{m.time}</p>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
 
         {typing && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{ display: 'flex', gap: '10px', alignSelf: 'flex-start' }}
-          >
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '0.95rem',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                flexShrink: 0,
-              }}
-            >
-              🤖
-            </div>
-            <div
-              style={{
-                backgroundColor: '#ffffff',
-                padding: '14px 18px',
-                borderRadius: '18px',
-                borderBottomLeftRadius: '4px',
-                boxShadow: '0 3px 12px rgba(0,0,0,0.07)',
-                display: 'flex',
-                gap: '4px',
-                alignItems: 'center',
-              }}
-            >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5 self-start">
+            <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-sm">🤖</div>
+            <div className="px-4 py-3.5 rounded-2xl rounded-bl-md bg-[#1F2023] border border-white/10 flex items-center gap-1">
               {[0, 1, 2].map((i) => (
                 <motion.span
                   key={i}
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
-                  style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    backgroundColor: '#0F3D3E',
-                    display: 'inline-block',
-                  }}
+                  className="w-1.5 h-1.5 rounded-full bg-white/60 inline-block"
                 />
               ))}
             </div>
           </motion.div>
         )}
-
         <div ref={bottomRef} />
       </div>
 
-      {/* Suggested prompts (only show before conversation grows) */}
+      {/* Suggested prompts */}
       {messages.length === 1 && (
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '0 20px 12px' }}>
+        <div className="relative z-10 flex gap-2 flex-wrap px-5 pb-3">
           {suggestedPrompts.map((p) => (
             <button
               key={p}
               onClick={() => sendMessage(p)}
-              style={{
-                padding: '8px 14px',
-                borderRadius: '999px',
-                border: '1px solid #0F3D3E33',
-                backgroundColor: '#ffffff',
-                color: '#0F3D3E',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-              }}
+              className="px-3.5 py-1.5 rounded-full border border-white/20 bg-white/5 text-white text-xs cursor-pointer hover:bg-white/10"
             >
               {p}
             </button>
@@ -295,54 +155,10 @@ function DrMatrixScreen() {
         </div>
       )}
 
-      {/* Input bar */}
-      <form
-        onSubmit={handleSend}
-        style={{
-          display: 'flex',
-          gap: '10px',
-          padding: '14px 20px',
-          background: '#ffffff',
-          borderTop: '1px solid #eee',
-        }}
-      >
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Describe your symptoms..."
-          style={{
-            flex: 1,
-            padding: '13px 18px',
-            borderRadius: '999px',
-            border: '1px solid #ddd',
-            outline: 'none',
-            fontSize: '0.9rem',
-          }}
-        />
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          type="submit"
-          style={{
-            background: 'linear-gradient(120deg, #0F3D3E 0%, #175B5C 100%)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '50%',
-            width: '46px',
-            height: '46px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.1rem',
-            flexShrink: 0,
-          }}
-          aria-label="Send"
-        >
-          ➤
-        </motion.button>
-      </form>
+      {/* Input */}
+      <div className="relative z-10 px-5 pb-5">
+        <PromptInputBox onSend={sendMessage} placeholder="Describe your symptoms..." />
+      </div>
     </div>
   );
 }

@@ -1,19 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doctors as mockDoctors, getWaitMinutes } from '../data/doctors';
+import { doctors as mockDoctors, getWaitMinutes, getNextToken, suggestDepartment } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 const departments = ['All', ...new Set(mockDoctors.map((d) => d.dept))];
 
 function FindDoctorsScreen() {
   const navigate = useNavigate();
   const [selectedDept, setSelectedDept] = useState('All');
+  const [complaint, setComplaint] = useState('');
+  const [suggestedDept, setSuggestedDept] = useState(null);
+
+  const handleComplaintCheck = () => {
+    const dept = suggestDepartment(complaint);
+    setSuggestedDept(dept);
+    if (dept) setSelectedDept(dept);
+  };
 
   const filteredDoctors =
     selectedDept === 'All' ? mockDoctors : mockDoctors.filter((d) => d.dept === selectedDept);
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
-      {/* Top bar */}
+    <div style={{ minHeight: '100vh', width: '100vw', backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div
         style={{
           display: 'flex',
@@ -35,7 +43,35 @@ function FindDoctorsScreen() {
       </div>
 
       <div style={{ padding: '24px 20px', maxWidth: '900px', margin: '0 auto' }}>
-        {/* Department filter chips */}
+        <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', marginBottom: '20px' }}>
+          <p style={{ margin: '0 0 10px', fontWeight: 'bold', color: '#0F3D3E' }}>What's bothering you?</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              value={complaint}
+              onChange={(e) => setComplaint(e.target.value)}
+              placeholder="e.g. chest pain, headache, my child has a fever..."
+              style={{ flex: 1, minWidth: '200px', padding: '11px', borderRadius: '10px', border: '1px solid #ccc' }}
+            />
+            <button
+              onClick={handleComplaintCheck}
+              style={{ padding: '11px 18px', borderRadius: '10px', border: 'none', background: '#0F3D3E', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              Find my specialist
+            </button>
+          </div>
+          {suggestedDept && (
+            <p style={{ marginTop: '10px', fontSize: '0.85rem', color: '#19765f' }}>
+              Based on what you described, we've filtered to <strong>{suggestedDept}</strong> below. This is a general pointer, not a diagnosis — always let the doctor confirm.
+            </p>
+          )}
+          {complaint && suggestedDept === null && (
+            <p style={{ marginTop: '10px', fontSize: '0.85rem', color: '#a5690c' }}>
+              We couldn't map that to a specific department — browse all doctors below, or try Dr. Matrix for guidance.
+            </p>
+          )}
+        </div>
+
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
           {departments.map((dept) => (
             <button
@@ -65,7 +101,6 @@ function FindDoctorsScreen() {
           {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''} found
         </p>
 
-        {/* Doctor cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {filteredDoctors.map((doc) => (
             <div
@@ -112,6 +147,9 @@ function FindDoctorsScreen() {
                   </p>
                   <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#0F3D3E' }}>
                     Estimated wait: {getWaitMinutes(doc)} min
+                  </p>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#0F3D3E' }}>
+                    Token if booked now: #{getNextToken(doc)}
                   </p>
                 </div>
               </div>

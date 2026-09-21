@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { doctors } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 const mockTransactions = [
   { id: 'TXN10231', doctorId: 1, amount: 500, method: 'UPI - Google Pay', date: 'Today, 3:52 PM', status: 'Success' },
@@ -23,8 +24,7 @@ function PaymentsScreen() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
-      {/* Top bar */}
+    <div style={{ minHeight: '100vh', width: '100vw', backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div
         style={{
           display: 'flex',
@@ -46,7 +46,6 @@ function PaymentsScreen() {
       </div>
 
       <div style={{ padding: '24px 20px', maxWidth: '700px', margin: '0 auto' }}>
-        {/* Summary card */}
         <div
           style={{
             backgroundColor: '#0F3D3E',
@@ -65,7 +64,6 @@ function PaymentsScreen() {
 
         <p style={{ fontWeight: 'bold', color: '#0F3D3E', marginBottom: '12px' }}>Transaction history</p>
 
-        {/* Transactions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {mockTransactions.map((t) => {
             const doctor = doctors.find((d) => d.id === t.doctorId);

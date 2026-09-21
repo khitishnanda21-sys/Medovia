@@ -14,6 +14,8 @@ import AppointmentsScreen from './screens/AppointmentsScreen';
 import PrescriptionsScreen from './screens/PrescriptionsScreen';
 import ReviewsScreen from './screens/ReviewsScreen';
 import PaymentsScreen from './screens/PaymentsScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import DoctorDashboardScreen from './screens/DoctorDashboardScreen';
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
       <Route path="/prescriptions" element={<PrescriptionsScreen />} />
       <Route path="/reviews" element={<ReviewsScreen />} />
       <Route path="/payments" element={<PaymentsScreen />} />
+      <Route path="/profile" element={<ProfileScreen />} />
+      <Route path="/doctor-dashboard" element={<DoctorDashboardScreen />} />
     </Routes>
   );
 }

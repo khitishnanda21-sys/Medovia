@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { doctors } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 const upiApps = ['Google Pay', 'PhonePe', 'Paytm', 'BHIM UPI'];
 
@@ -56,7 +57,7 @@ function PaymentScreen() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
+    <div style={{ minHeight: '100vh', width: '100vw', backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div
         style={{
           display: 'flex',
@@ -77,7 +78,6 @@ function PaymentScreen() {
       </div>
 
       <div style={{ padding: '24px 20px', maxWidth: '480px', margin: '0 auto' }}>
-        {/* Order summary */}
         <div
           style={{
             backgroundColor: '#fff',
@@ -105,7 +105,6 @@ function PaymentScreen() {
           </div>
         </div>
 
-        {/* Payment method tabs */}
         <div
           style={{
             display: 'flex',

@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { doctors, getWaitMinutes } from '../data/doctors';
+import { doctors, getWaitMinutes, getNextToken, getRecommendedArrival } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 function DoctorProfileScreen() {
   const navigate = useNavigate();
   const { id } = useParams();
   const doctor = doctors.find((d) => d.id === Number(id));
 
-  const [urgency, setUrgency] = useState(null); // null | 'yes' | 'no'
+  const [urgency, setUrgency] = useState(null);
   const [mode, setMode] = useState('Online');
   const [suggestion, setSuggestion] = useState(null);
 
@@ -43,7 +44,7 @@ function DoctorProfileScreen() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
+    <div style={{ minHeight: '100vh', width: '100vw', backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div
         style={{
           display: 'flex',
@@ -64,7 +65,6 @@ function DoctorProfileScreen() {
       </div>
 
       <div style={{ padding: '24px 20px', maxWidth: '600px', margin: '0 auto' }}>
-        {/* Doctor card */}
         <div
           style={{
             backgroundColor: '#fff',
@@ -103,12 +103,17 @@ function DoctorProfileScreen() {
           <p style={{ margin: '4px 0', color: '#0F3D3E', fontSize: '0.9rem', fontWeight: 'bold' }}>
             Estimated wait: {getWaitMinutes(doctor)} min
           </p>
+          <p style={{ margin: '4px 0', color: '#5f5e5a', fontSize: '0.9rem' }}>
+            🎫 Currently serving: <strong>#{doctor.currentlyServing}</strong> • Your token would be <strong>#{getNextToken(doctor)}</strong>
+          </p>
+          <p style={{ margin: '4px 0', color: '#5f5e5a', fontSize: '0.9rem' }}>
+            🕐 Recommended arrival: <strong>{getRecommendedArrival(doctor)}</strong>
+          </p>
           <p style={{ margin: '10px 0 0', fontWeight: 'bold', color: '#0F3D3E', fontSize: '1.2rem' }}>
             ₹{doctor.fee} consultation fee
           </p>
         </div>
 
-        {/* Urgency question */}
         <div
           style={{
             backgroundColor: '#fff',
@@ -197,7 +202,6 @@ function DoctorProfileScreen() {
           )}
         </div>
 
-        {/* Mode + booking */}
         {urgency && (
           <div
             style={{

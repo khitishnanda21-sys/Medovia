@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doctors } from '../data/doctors';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 const mockAppointments = [
   { id: 1, doctorId: 1, date: 'Today', time: '4:00 PM', mode: 'Online', status: 'Confirmed', tab: 'upcoming' },
@@ -24,8 +25,7 @@ function AppointmentsScreen() {
   const filtered = mockAppointments.filter((a) => a.tab === tab);
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
-      {/* Top bar */}
+    <div style={{ minHeight: '100vh', width: '100vw', backgroundImage: `url(${dashboardBg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <div
         style={{
           display: 'flex',
@@ -47,7 +47,6 @@ function AppointmentsScreen() {
       </div>
 
       <div style={{ padding: '24px 20px', maxWidth: '700px', margin: '0 auto' }}>
-        {/* Tabs */}
         <div
           style={{
             display: 'flex',
@@ -86,7 +85,6 @@ function AppointmentsScreen() {
           </p>
         )}
 
-        {/* Appointment cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {filtered.map((appt) => {
             const doctor = doctors.find((d) => d.id === appt.doctorId);

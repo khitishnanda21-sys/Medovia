@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { doctors } from '../data/doctors';
+import { CircularTestimonials } from '../components/CircularTestimonials';
+import dashboardBg from '../assets/medovia-dashboard-bg.png';
 
 // Helper: days between two dates
 function daysAgo(dateStr) {
@@ -72,7 +74,16 @@ function ReviewsScreen() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', background: '#F5F3DF' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundImage: `url(${dashboardBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       {/* Top bar */}
       <div
         style={{
@@ -93,7 +104,7 @@ function ReviewsScreen() {
         <p style={{ margin: 0, fontWeight: 'bold' }}>Reviews</p>
       </div>
 
-      <div style={{ padding: '24px 20px', maxWidth: '600px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 20px', maxWidth: '750px', margin: '0 auto' }}>
         {/* Doctor summary */}
         <div
           style={{
@@ -188,33 +199,29 @@ function ReviewsScreen() {
           )}
         </div>
 
-        {/* Active reviews */}
+        {/* Active reviews - circular carousel */}
         {activeReviews.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
             <p style={{ fontWeight: 'bold', color: '#0F3D3E', marginBottom: '10px' }}>Recent reviews</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {activeReviews.map((r) => (
-                <div
-                  key={r.id}
-                  style={{
-                    backgroundColor: '#fff',
-                    borderRadius: '14px',
-                    padding: '14px 16px',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <p style={{ margin: 0, fontWeight: 'bold', color: '#333', fontSize: '0.9rem' }}>{r.patient}</p>
-                    <span style={{ color: '#f5b301', fontSize: '0.85rem' }}>{'★'.repeat(r.rating)}</span>
-                  </div>
-                  {r.comment && (
-                    <p style={{ margin: '6px 0 0', fontSize: '0.85rem', color: '#5f5e5a' }}>{r.comment}</p>
-                  )}
-                  <p style={{ margin: '6px 0 0', fontSize: '0.75rem', color: '#aaa' }}>
-                    {daysAgo(r.date) === 0 ? 'Today' : `${daysAgo(r.date)} day${daysAgo(r.date) > 1 ? 's' : ''} ago`}
-                  </p>
-                </div>
-              ))}
+            <div
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: '20px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                overflow: 'hidden',
+              }}
+            >
+              <CircularTestimonials
+                autoplay={activeReviews.length > 1}
+                testimonials={activeReviews.map((r) => ({
+                  quote: r.comment || 'No written comment, just a star rating.',
+                  name: r.patient,
+                  designation: `${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)} • ${
+                    daysAgo(r.date) === 0 ? 'Today' : `${daysAgo(r.date)}d ago`
+                  }`,
+                  src: `https://i.pravatar.cc/300?img=${(r.id % 70) + 1}`,
+                }))}
+              />
             </div>
           </div>
         )}
